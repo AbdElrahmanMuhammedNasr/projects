@@ -1,0 +1,182 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: payment-js
+    url: http://20.127.0.64:5000
+    protocol: http
+    routes:
+      - name: payment
+        paths:
+          -  /gateway/payment/api
+        strip_path: true
+
+  - name: order-java
+    url: http://20.127.0.64:7000
+    protocol: http
+    routes:
+      - name: order
+        paths:
+          -  /gateway/order/api
+        strip_path: true
+
+
+
+  - host: 20.127.108.34
+    name: info-js
+    port: 1000
+    protocol: http
+    routes:
+      - name: echo
+        paths:
+          - /gateway/info/api
+        strip_path: true
+
+#  - name: upstream_service_1
+#    host: upstream_service_1
+#    protocol: http
+#    routes:
+#          - name: echo
+#            paths:
+#              - /echo
+#            strip_path: true
+
+upstreams:
+    - name: upstream_service_1
+      targets:
+        - target: 20.127.108.34:1000
+          weight: 50
+        - target: 20.127.108.34:2000
+          weight: 50
+
+consumers:
+  - username: users
+
+jwt_secrets:
+  - consumer: users
+
+basicauth_credentials:
+  - consumer: users
+    username: ali
+    password: ali
+  - consumer: users
+    username: bob
+    password: bob
+
+keyauth_credentials:
+  - consumer: users
+    key: abc
+
+plugins:
+  - name: key-auth
+    enabled: false
+    config:
+      key_names:
+        - apikey
+
+  - name: jwt
+    enabled: false
+    config:
+      key_claim_name: iss
+      claims_to_verify:
+        - exp
+
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+
+  - name: cors
+#    service: service_1
+    config:
+      origins:
+        - '*'
+      methods:
+        - GET
+        - POST
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - X-Auth-Token
+      exposed_headers:
+        - X-Auth-Token
+      credentials: true
+      max_age: 3600
+
+  - name: rate-limiting
+    config:
+      minute: 5
+      policy: local
+#      fault_tolerant: true
+#      hide_client_headers: false
+#      redis_ssl: false
+#      redis_ssl_verify: false
+#      policy: redis
+#      redis_host: localhost
+#      redis_password: example
+
+  - name: ip-restriction
+    config:
+      allow:
+        - 192.168.144.1
+        -  172.19.0.1
+      status: 403
+      message: "You are not allowed to access this service"
+
+#  - name: bot-detection
+#    config:
+#      deny:
+##        - "curl"
+#        - "postman"
+
+#  - name: response-ratelimiting
+#    config:
+#      header_name: "X-tamer-Limit"
+#      limits:
+#        limit_name:
+#          minute: 10
+#      policy: local
+
+#  - name: request-termination
+#    config:
+#      status_code: 403
+#      message: So long and thanks for all the fish!
+
+#  - name: proxy-cache
+#    config:
+#      response_code:
+#        - 200
+#      request_method:
+#        - GET
+#        - HEAD
+#      content_type:
+#        - text/plain
+#        - application/json
+#      cache_ttl: 30
+#      strategy: memory
+
+#  - name: prometheus
+#    config:
+#      per_consumer: false
+
+#  - name: zipkin
+#    config:
+#      http_endpoint: http://4.157.90.148:9411/api/v2/spans
+#      sample_ratio: 1
+#      include_credential: true
+
+
+  - name: correlation-id
+    config:
+      header_name: request_identifier
+#      generator: uuid#counter
+      generator: tracker
+      echo_downstream: false
+
+#  - name: file-log
+#    config:
+#      path: "./file.log"
