@@ -2,38 +2,75 @@ version: '3'
 
 services:
 
-#  zipkin:
-#    image: openzipkin/zipkin:latest
-#    container_name: zipkin
-#    ports:
-#      - "9411:9411"
-#    environment:
-#      - STORAGE_TYPE=mem
-
-
-#  prometheus:
-#    image: prom/prometheus
-#    container_name: prometheus
-#    ports:
-#      - "9090:9090"
-#    volumes:
-#      - ./prometheus.yml:/opt/bitnami/prometheus/prometheus.yml
-
   kong:
-    image: kong/kong-gateway:3.5.0.2
+    image: kong/kong-gateway:3.4
     environment:
       KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ROLE: "data_plane"
+      KONG_VITALS: "off"
+      KONG_CLUSTER_MTLS: "pki"
+      KONG_CLUSTER_CONTROL_PLANE: "bc17e8bcc8.us.cp0.konghq.com:443"
+      KONG_CLUSTER_SERVER_NAME: "bc17e8bcc8.us.cp0.konghq.com"
+      KONG_CLUSTER_TELEMETRY_ENDPOINT: "bc17e8bcc8.us.tp0.konghq.com:443"
+      KONG_CLUSTER_TELEMETRY_SERVER_NAME: "bc17e8bcc8.us.tp0.konghq.com"
+      KONG_CLUSTER_CERT: "-----BEGIN CERTIFICATE----- \
+MIIDlDCCAn6gAwIBAgIBATALBgkqhkiG9w0BAQ0wNDEyMAkGA1UEBhMCVVMwJQYD \
+VQQDHh4AawBvAG4AbgBlAGMAdAAtAGQAZQBmAGEAdQBsAHQwHhcNMjQwMTA5MTQz \
+MzE1WhcNMzQwMTA5MTQzMzE1WjA0MTIwCQYDVQQGEwJVUzAlBgNVBAMeHgBrAG8A \
+bgBuAGUAYwB0AC0AZABlAGYAYQB1AGwAdDCCASIwDQYJKoZIhvcNAQEBBQADggEP \
+ADCCAQoCggEBALEeK8O4xZ3yLGLxFE567qzMGtYTVzX1ZhGz8ItxzThT6ogEdC+4 \
+zkYIwKBPidkQt3uxYi+Mm8ll+lba/RMMpgo+3uNtRvB3rvot7I9WgQ0hsMCieRNv \
+DdQjCIm0qhh3cDkvlmOxu3MKFV1MhzjRDH06Cny8cQ15hdhyVPcRAH6ITwEMrH4y \
+3MOwBcDTLPNXpygd+elt27xtbLrK1p1At4jSVEjnyIBWqIAfEne7d674vCtr6cv+ \
+dTRdm3p1jTwfmsvmmdBbRp2GZ6jd96luCGMTB6iTKlqKSHPghBSasyDde0hKWdu+ \
+YbVcePn13NLXSRWNo0RXuDEQSeZ6tlU+KbUCAwEAAaOBtDCBsTASBgNVHRMBAf8E \
+CDAGAQH/AgEDMAsGA1UdDwQEAwIABjAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYB \
+BQUHAwIwFwYJKwYBBAGCNxQCBAoMCGNlcnRUeXBlMCMGCSsGAQQBgjcVAgQWBBQB \
+AQEBAQEBAQEBAQEBAQEBAQEBATAcBgkrBgEEAYI3FQcEDzANBgUpAQEBAQIBCgIB \
+FDATBgkrBgEEAYI3FQEEBgIEABQACjALBgkqhkiG9w0BAQ0DggEBAAQRQTUpNhZ2 \
+2OaqaltNLZ2mQo1Mi/fzZ+qIxyLJ3HDkZsgnSm/nwTaox6vCbtCSTopjqOZoFRvL \
+ubXXoJQBWI5SNw2pLstj+TVgDtk298h7/6IN4a4gwd4nlxa+LVx13mzt/TgVADFu \
+LX/CnGQRT0eqHMZoAqmpskxpc5X3SaE4x34C0guWUn741s67vKIsgYOFkGutdL7n \
+9Ro9KPVICTig/SRnwSReup6i7VsHWHFb/AKsD4OU/FUoU7wqu3IbN7YmBXuRhVWT \
+q/6cCUnNMCreXfCVDiKaAsH1rVhUEd03f/CIsaGxB+tT6DmD/foO0kI6lzEd1DIS \
+SLedtqz89U4= \
+-----END CERTIFICATE-----"
+      KONG_CLUSTER_CERT_KEY: "-----BEGIN PRIVATE KEY----- \
+MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCxHivDuMWd8ixi \
+8RROeu6szBrWE1c19WYRs/CLcc04U+qIBHQvuM5GCMCgT4nZELd7sWIvjJvJZfpW \
+2v0TDKYKPt7jbUbwd676LeyPVoENIbDAonkTbw3UIwiJtKoYd3A5L5ZjsbtzChVd \
+TIc40Qx9Ogp8vHENeYXYclT3EQB+iE8BDKx+MtzDsAXA0yzzV6coHfnpbdu8bWy6 \
+ytadQLeI0lRI58iAVqiAHxJ3u3eu+Lwra+nL/nU0XZt6dY08H5rL5pnQW0adhmeo \
+3fepbghjEweokypaikhz4IQUmrMg3XtISlnbvmG1XHj59dzS10kVjaNEV7gxEEnm \
+erZVPim1AgMBAAECgf8UPJ5DfpkVstXfeCwZy3H5zFhEnXEZeTBwVV7mj9oi1XO2 \
+lsuvqC3pUpavumbFpmNQfrP5OteR61TvF5ZS1t8hzI0q7xFr6EDV1Olydy/HkFHh \
+sK6kycuKsXYIRdwpb3wjDIziVyxTuJM4VcYdd8U1iawpFF7Wa0wfrvCGSisESd4B \
+r6QWSnYpQDoFs2NY10P26k9/q0CExvXeA3fNJDMOvCWXhlNnOpZ+rEFl2q8MHw1I \
+Oc8balZC1mRUkQOh80JqL42mq4ovSn/OUJzqBEikjsPDswQvLCXeyGGCT9HWL5QI \
+pvfqI9aGDgAFYdlDTH/1u+BgV3phmfNiGogRUXkCgYEA4Nz1VimXbYXck6eJjWpE \
+gxzjkowyh4JAAfvuQzP8axPWCRp1YpbEdFzL0aHn4IRnd/KfGcmDSrYt4T/V+HI0 \
+tRlrnjvEnl4mDdw5JMl3j/ymRtUsl+wJOFlx5IMuhbRkSS+Ngu2D5d5VJSRR5PB2 \
+VIsaJER5zT89EEjpahRuKU0CgYEAyaS39dqsg1qZWdPn8kM96quPhI+8aqdSy/Fq \
+DV+Or119yWo12oJBUwA4/pM5tqj9zLmm0Xjb7d8fEnhAqx1fzs9nkcuFq7TStNk1 \
+8bDhC8pGLZijkUNHdGEOVv9Ta5PPRg335alzWZZTs3IFYdP1oVG0YZcepSoE1RnP \
+TyFOjgkCgYEAztbxZfyEKl7D855czRQ/SUu9mgQURsntDuYq2O5s9iIc8+q+p51/ \
+wHnLkl2X6dJhStiGuTW/622A7n3F2O9UxHFJqRfZWMPJxV4Zwlj//has7OMSTfz0 \
+zjyYo1Z36M1yok93oEPS3BOTxsKOAkWe003REiNa1w2goeYvr0BzxNECgYBncQy+ \
+HtPo/o00u7R9X2lf/Wq+gk4SGIws+0eAXMkBxWBF9ypxUejY/4A9eKFexwqL/6FI \
+TEvml1OFUhM6tPL1UQi8jj+gej6tb9BwkGCif73Inkkqt+zsEu4cSxcsVMM8GOZW \
+9rqp9qgxogiIywdzHkr+1VtvN0MLXxYubdOyoQKBgQDBiOQ98SsE5FDcNlWgqxD4 \
+toAOLiO1DSFin0XbLxzwNEzDtJIaw9RhW41RuxK3uGq0raRjkbKTojEsKbDN86kn \
+15aREDyXRU5dq3XMUsV3kW3M89P0+XnQEpo0c+dHXY0D5g0ihebcrCWiqSbeEzOf \
++qW0bnFpOEDCZ4cHPl8Kpg== \
+-----END PRIVATE KEY-----"
+      KONG_LUA_SSL_TRUSTED_CERTIFICATE: "system"
+      KONG_KONNECT_MODE: "on"
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
-#      KONG_ADMIN_GUI_URL: "0.0.0.0:8002"
     volumes:
       - ./kong.yml:/etc/kong/kong.yml
-      - ./logs:/usr/local/kong/logs
     ports:
       - "8000:8000"
       - "8001:8001"
-#      - "8002:8002"
+      - "8443:8443"
+
+
